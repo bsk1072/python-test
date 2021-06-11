@@ -1,6 +1,10 @@
 pipeline {
     agent {
-        docker { image 'docker:latest' }
+        docker { 
+            image 'docker:latest' 
+            args '--rm -v /var/run/docker.sock:/var/run/docker.sock -u root'
+            
+        }
     }
     stages {
         stage('Test') {
@@ -27,3 +31,5 @@ pipeline {
         }        
     }
 }
+
+
