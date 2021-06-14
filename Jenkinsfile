@@ -7,7 +7,7 @@ pipeline {
         }
     }
     environment {
-        img = "bsk1072"
+        dockerimage = ("bsk1072/${env.JOB_BASE_NAME}").toLowerCase()
     }
     stages {
         stage('Test') {
@@ -19,14 +19,35 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                img = docker.build('bsk1072/python-example:latest', '.')
+                img = docker.build("${dockerimage}", '.')
                 }
             }
         }
-        stage('Publish the Docker image to Registry') {
+        
+        stage('BuildInside') {
             steps {
                 script {
-                docker.withRegistry('https://registry.hub.docker.com', 'bsk1072') {
+                 docker.image("${dockerimage}").withRun('-d=true') {
+                       sh "ls"
+                    }
+                }
+            }
+          }
+          
+        stage('Publish the Docker image to dev registry') {
+            steps {
+                script {
+                docker.withRegistry("https://registry.hub.docker.com", 'bsk1072') {
+                    img.push("${env.BUILD_NUMBER}")
+                }
+                }
+            }
+        } 
+        
+        stage('Publish the Docker image to prod registry') {
+            steps {
+                script {
+                docker.withRegistry("https://registry.hub.docker.com", 'bsk1072') {
                     img.push('latest')
                 }
                 }
@@ -34,6 +55,3 @@ pipeline {
         }        
     }
 }
-
-
-
