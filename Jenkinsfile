@@ -6,6 +6,9 @@ pipeline {
             
         }
     }
+    environment {
+        img = "bsk1072"
+    }
     stages {
         stage('Test') {
             steps {
@@ -16,7 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                def img = docker.build('bsk1072/python-example:latest', '.')
+                img = docker.build('bsk1072/python-example:latest', '.')
                 }
             }
         }
@@ -31,5 +34,6 @@ pipeline {
         }        
     }
 }
+
 
 
